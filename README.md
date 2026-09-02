@@ -4,8 +4,6 @@ Research and engineering repository for **«Մարդու ուղեղի և վիր�
 
 ## Mandatory first read
 
-Before any work:
-
 1. [`AGENTS.md`](./AGENTS.md)
 2. [`CANONICAL_MASTER_PLAN.md`](./CANONICAL_MASTER_PLAN.md)
 3. [`docs/CURRENT_CHECKPOINT.md`](./docs/CURRENT_CHECKPOINT.md)
@@ -13,13 +11,15 @@ Before any work:
 
 ## Current active work
 
-**PHASE 2 — TASKS 61–80 — BIOSIGNAL ACQUISITION + QUALITY**
+**PHASE 3 — TASKS 81–100 — MULTIMODAL AFFECT / STATE INFERENCE**
 
-Goal: build a deterministic, device-agnostic recorded/replay biosignal acquisition and quality layer with explicit clock alignment, dropout/artifact flags, missing-data semantics and synchronized feature windows before affect inference or real closed-loop adaptation.
+Goal: define the exact inference/ground-truth contract and build an interpretable, calibrated, uncertainty-aware offline baseline on labeled deidentified data, preserving Phase 2 signal-quality provenance and explicit unknown/abstention behavior.
 
-Previous gate:
+Closed gates:
+- **Tasks 41–60 — ✅ Phase 1**: contracts + deterministic synthetic pipeline + safety/schema CI.
+- **Tasks 61–80 — ✅ Phase 2**: acquisition/quality + Empatica E4 adapter + deterministic quality fixtures + real/deidentified PhysioNet EDA/IBI validation.
 
-**PHASE 1 — TASKS 41–60 — ✅ completed** on accepted SHA `e510258772a1698b712ef8a35dba06750043cdff`; GitHub Actions run `33626870757` succeeded.
+Phase 3 must not claim direct mind reading and must not silently reinterpret dataset condition labels as valence/arousal without matching ground truth.
 
 Canonical Drive mirror:
 https://docs.google.com/document/d/1krH-xkqJTJ6tk1bLtS0vVYWiz521H2owt6t_APRv8ys/edit
