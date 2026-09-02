@@ -67,9 +67,10 @@ No agent may silently promote C/D to A.
 ## 5. Current status
 
 - ✅ Tasks 1–40 completed according to the official handoff; do not restart them from zero.
+- ✅ Tasks 41–60 completed with deterministic synthetic end-to-end pipeline, input/output schema validation, deterministic replay, safety tests, and GitHub Actions proof.
 - ✅ Canonical objective, evidence separation, safety-first principles and one-path execution are frozen.
-- ✅ Dedicated GitHub repository is now bound: `tigpetryan-rgb/-`.
-- ❌ Tasks 41–209 remain on the canonical execution chain.
+- ✅ Dedicated GitHub repository is bound: `tigpetryan-rgb/humanandvirtualworld`.
+- ❌ Tasks 61–209 remain on the canonical execution chain.
 - ⚠️ A completed handoff item is only as strong as its recorded evidence; code existence alone does not imply production-grade acceptance.
 
 # 6. ACTIVE MASTER EXECUTION SEQUENCE
@@ -82,34 +83,57 @@ No agent may silently promote C/D to A.
 
 ## PHASE 1 — TASKS 41–60 — SYSTEM SPEC + MEASUREMENT FOUNDATION
 
-❌ **CURRENT ACTIVE PHASE.**
+✅ **COMPLETED.**
 
-Close the measurable contract for the complete closed-loop prototype.
+Closed measurable contracts include sensor abstraction, monotonic/session time, synchronization and quality semantics, missing-data handling, participant/session/event schemas, feature/state outputs with uncertainty, bounded environment parameters, telemetry/replay, latency/privacy boundaries, and safety interface.
 
-Required outputs:
-- sensor abstraction,
-- timestamp/synchronization model,
-- signal-quality flags,
-- participant/session/event schema,
-- feature schema,
-- affect/state output schema including uncertainty,
-- environment parameter registry,
-- telemetry/replay format,
-- latency budget,
-- privacy boundaries,
-- safety supervisor interface.
+Evidence:
+- exact accepted SHA: `e510258772a1698b712ef8a35dba06750043cdff`
+- workflow: `Phase 1 Contracts`
+- run: `33626870757`
+- conclusion: `success`
+- job: `phase1-contracts` → success
+- synthetic session: schema-valid, deterministic replay, output/telemetry schema-valid
+- fault cases: bad quality → unknown/no-op; human stop override; safety clamp/reject; invalid sequence/time rejected
 
-**DONE gate:** a synthetic session passes the complete pipeline without real human data, with deterministic replay and schema validation.
-
-Do not start Phase 2 before this gate is proven.
+**DONE gate:** proven.
 
 ## PHASE 2 — TASKS 61–80 — BIOSIGNAL ACQUISITION + QUALITY
 
-❌ Multimodal input layer. Primary candidates: HR/HRV, EDA/GSR, eye/gaze/pupil, face/head/body motion, respiration. EEG only when a real device and clear scientific value justify it.
+❌ **CURRENT ACTIVE PHASE.**
 
-Required: calibration, artifact detection, dropout handling, clock alignment, per-sensor confidence.
+Build and validate a multimodal input layer without pretending that any single sensor directly reveals emotion.
 
-**DONE gate:** recorded data produces synchronized clean features while explicitly marking bad/missing data.
+Primary channels:
+- HR / inter-beat intervals / HRV-derived features,
+- EDA/GSR,
+- respiration,
+- eye/gaze/pupil when hardware permits,
+- face/head/body motion where useful.
+
+EEG is not a default requirement. It enters only when a real device and a clearly defined scientific value justify the added complexity/noise burden.
+
+Required outputs:
+- device-agnostic sensor adapter interface,
+- recorded-file/replay adapter,
+- calibration metadata,
+- clock alignment and timestamp diagnostics,
+- dropout detection,
+- artifact detection/flags,
+- per-channel and per-window quality/confidence,
+- explicit missing/unknown semantics,
+- synchronized clean feature windows,
+- deterministic recorded-data replay,
+- test fixtures for clean, noisy, missing, drifted and misaligned data.
+
+Scientific law for this phase:
+- sensor quality is measured separately from emotional-state confidence,
+- low-quality data must never be silently imputed into high-confidence affect inference,
+- derived physiological features are measurements/proxies, not direct mind-reading labels.
+
+**DONE gate:** a recorded multimodal dataset is ingested through the device-agnostic layer, clocks are aligned/diagnosed, artifacts/dropouts are explicitly marked, synchronized feature windows are produced deterministically, and bad/missing data remain visible instead of being hidden.
+
+Do not start Phase 3 before this gate is proven.
 
 ## PHASE 3 — TASKS 81–100 — MULTIMODAL AFFECT / STATE INFERENCE
 
@@ -235,11 +259,11 @@ Code existence alone is insufficient. A documented scientific hypothesis is not 
 
 ## 11. CURRENT CHECKPOINT
 
-**Active phase:** PHASE 1 — TASKS 41–60 — SYSTEM SPEC + MEASUREMENT FOUNDATION.
+**Active phase:** PHASE 2 — TASKS 61–80 — BIOSIGNAL ACQUISITION + QUALITY.
 
-**Exact objective:** define the closed-loop prototype contracts/specifications and implement a deterministic synthetic end-to-end session that proves the Phase 1 gate.
+**Exact objective:** implement the device-agnostic recorded-data acquisition/quality pipeline first, with deterministic replay and explicit quality/missing-data semantics, then connect real sensors only through that same contract.
 
-**Do not do next:** Tasks 61+ sensor integration, advanced ML, full-dive research, human-subject work, or large content production until Phase 1 is closed.
+**Do not do next:** Phase 3 emotion inference, adaptive policy, full-dive research or human-subject work until Phase 2 DONE gate is proven.
 
 ## 12. Canonical update rule
 
