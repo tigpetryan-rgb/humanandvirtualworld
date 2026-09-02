@@ -70,9 +70,17 @@ def validate_recording(recording: dict[str, Any]) -> None:
             raise AcquisitionContractError(f"unsupported channel: {name}")
         if channel.get("unit") != CHANNEL_SPECS[name]["unit"]:
             raise AcquisitionContractError(f"unit mismatch: {name}")
+
+        sampling_mode = channel.get("sampling_mode", "regular")
+        if sampling_mode not in {"regular", "event"}:
+            raise AcquisitionContractError(f"invalid sampling_mode: {name}")
         hz = channel.get("nominal_hz")
-        if not isinstance(hz, (int, float)) or not math.isfinite(hz) or hz <= 0:
-            raise AcquisitionContractError(f"invalid nominal_hz: {name}")
+        if sampling_mode == "regular":
+            if not isinstance(hz, (int, float)) or not math.isfinite(hz) or hz <= 0:
+                raise AcquisitionContractError(f"invalid nominal_hz: {name}")
+        elif hz is not None and (not isinstance(hz, (int, float)) or not math.isfinite(hz) or hz <= 0):
+            raise AcquisitionContractError(f"invalid event nominal_hz: {name}")
+
         clock = channel.get("clock") or {}
         for key in ("offset_ms", "drift_ppm"):
             value = clock.get(key)
@@ -141,8 +149,9 @@ def ingest_recording(recording: dict[str, Any]) -> dict[str, Any]:
 
     for channel in recording["channels"]:
         name = channel["name"]
-        hz = float(channel["nominal_hz"])
-        expected_period = 1000.0 / hz
+        sampling_mode = channel.get("sampling_mode", "regular")
+        hz = channel.get("nominal_hz")
+        expected_period = 1000.0 / float(hz) if sampling_mode == "regular" else None
         diag = clock_diagnostics(channel)
         previous_source: float | None = None
         previous_value: float | None = None
@@ -150,7 +159,7 @@ def ingest_recording(recording: dict[str, Any]) -> dict[str, Any]:
 
         for sample in channel["samples"]:
             source_time = float(sample["source_time_ms"])
-            if previous_source is not None:
+            if previous_source is not None and expected_period is not None:
                 gap = source_time - previous_source
                 if gap > expected_period * GAP_FACTOR:
                     missing_estimate = max(1, round(gap / expected_period) - 1)
@@ -189,7 +198,8 @@ def ingest_recording(recording: dict[str, Any]) -> dict[str, Any]:
         usable = quality_counts["good"] + quality_counts["degraded"]
         denom = observed + quality_counts["dropout"]
         channel_summaries[name] = {
-            "nominal_hz": hz,
+            "sampling_mode": sampling_mode,
+            "nominal_hz": float(hz) if hz is not None else None,
             "clock": diag,
             "quality_counts": quality_counts,
             "observed_samples": observed,
