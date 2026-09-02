@@ -6,6 +6,7 @@ from positive_emotion_engine.physionet_stress_dataset import (
     parse_event_tags,
     parse_regular_empatica_stream,
     parse_stress_level_csv,
+    stream_start_offset_seconds,
 )
 
 
@@ -52,3 +53,18 @@ def test_regular_stream_parser_honors_sample_rate_and_format():
     assert stream.sample_rate_hz == 1.0
     assert stream.values == (78.0, 77.0, 76.67)
     assert stream.duration_seconds == 3.0
+
+
+def test_streams_keep_independent_start_times_and_report_offset():
+    eda = parse_regular_empatica_stream(
+        "2013-06-30 09:59:50\n4.0\n1.0\n1.1\n1.2\n",
+        unit="uS",
+        expected_sample_rate_hz=4.0,
+    )
+    hr = parse_regular_empatica_stream(
+        "2013-06-30 09:59:54\n1.0\n78.0\n77.0\n",
+        unit="bpm",
+        expected_sample_rate_hz=1.0,
+    )
+    assert eda.session_start_utc != hr.session_start_utc
+    assert stream_start_offset_seconds(eda, hr) == 4.0
