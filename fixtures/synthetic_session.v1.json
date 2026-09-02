@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "session": {
+    "session_id": "session-synth-001",
+    "participant_id": "synthetic-participant-001",
+    "data_class": "synthetic_only",
+    "synthetic": true,
+    "stop_requested": false
+  },
+  "samples": [
+    {"event_id":"s1","session_id":"session-synth-001","seq":1,"monotonic_ns":1000000000,"source_time_ns":900000000,"source_clock_id":"heart-clock","sync_uncertainty_ms":1.0,"sensor_type":"heart","value":0.62,"quality":"good","confidence":0.92},
+    {"event_id":"s2","session_id":"session-synth-001","seq":2,"monotonic_ns":1010000000,"source_time_ns":910000000,"source_clock_id":"eda-clock","sync_uncertainty_ms":1.5,"sensor_type":"eda","value":0.58,"quality":"good","confidence":0.90},
+    {"event_id":"s3","session_id":"session-synth-001","seq":3,"monotonic_ns":1020000000,"source_time_ns":920000000,"source_clock_id":"resp-clock","sync_uncertainty_ms":2.0,"sensor_type":"respiration","value":0.45,"quality":"degraded","confidence":0.74},
+    {"event_id":"s4","session_id":"session-synth-001","seq":4,"monotonic_ns":1030000000,"source_time_ns":930000000,"source_clock_id":"gaze-clock","sync_uncertainty_ms":1.0,"sensor_type":"gaze","value":0.72,"quality":"good","confidence":0.88},
+    {"event_id":"s5","session_id":"session-synth-001","seq":5,"monotonic_ns":1040000000,"source_time_ns":940000000,"source_clock_id":"face-clock","sync_uncertainty_ms":2.5,"sensor_type":"face_motion","value":0.68,"quality":"good","confidence":0.84}
+  ],
+  "initial_scene": {
+    "light_intensity": 0.60,
+    "motion_intensity": 0.15,
+    "audio_intensity": 0.25,
+    "scene_density": 0.40
+  },
+  "policy": {
+    "policy_id": "synthetic-reference-v1",
+    "seed": 17
+  }
+}
