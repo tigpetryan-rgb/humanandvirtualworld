@@ -1,0 +1,10 @@
+{
+  "fixture_version": "2.0.0",
+  "scenarios": {
+    "clean": {},
+    "noisy": {"eda_artifact_seq": 7},
+    "missing": {"eda_drop_seqs": [5, 6], "resp_missing_seq": 9},
+    "misaligned": {"eda_offset_ms": 250.0},
+    "drifted": {"eda_drift_ppm": 600.0}
+  }
+}
