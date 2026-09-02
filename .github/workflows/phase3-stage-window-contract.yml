@@ -1,0 +1,35 @@
+name: Phase 3 Stage Window Contract
+
+on:
+  push:
+    paths:
+      - "src/positive_emotion_engine/recorded_stage_windows.py"
+      - "src/positive_emotion_engine/physionet_stress_dataset.py"
+      - "src/positive_emotion_engine/state_inference.py"
+      - "tests/test_recorded_stage_windows.py"
+      - ".github/workflows/phase3-stage-window-contract.yml"
+  pull_request:
+    paths:
+      - "src/positive_emotion_engine/recorded_stage_windows.py"
+      - "src/positive_emotion_engine/physionet_stress_dataset.py"
+      - "src/positive_emotion_engine/state_inference.py"
+      - "tests/test_recorded_stage_windows.py"
+      - ".github/workflows/phase3-stage-window-contract.yml"
+  workflow_dispatch:
+
+jobs:
+  stage-window-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package and tests
+        run: python -m pip install -e ".[test]"
+      - name: Stage-window and Phase 3 regression tests
+        run: >-
+          pytest -q
+          tests/test_phase3_state_inference.py
+          tests/test_physionet_stress_dataset.py
+          tests/test_recorded_stage_windows.py
