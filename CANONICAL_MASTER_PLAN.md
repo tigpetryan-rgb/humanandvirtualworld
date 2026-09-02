@@ -67,10 +67,11 @@ No agent may silently promote C/D to A.
 ## 5. Current status
 
 - ✅ Tasks 1–40 completed according to the official handoff; do not restart them from zero.
-- ✅ Tasks 41–60 completed with deterministic synthetic end-to-end pipeline, input/output schema validation, deterministic replay, safety tests, and GitHub Actions proof.
+- ✅ Tasks 41–60 completed with deterministic synthetic end-to-end pipeline, schema validation, deterministic replay, safety tests and exact-SHA GitHub CI proof.
+- ✅ Tasks 61–80 completed with device-agnostic acquisition/quality contracts, regular/event sampling semantics, deterministic quality fixtures, Empatica E4 adapter, public deidentified recorded-data validation and CI proof.
 - ✅ Canonical objective, evidence separation, safety-first principles and one-path execution are frozen.
 - ✅ Dedicated GitHub repository is bound: `tigpetryan-rgb/humanandvirtualworld`.
-- ❌ Tasks 61–209 remain on the canonical execution chain.
+- ❌ Tasks 81–209 remain on the canonical execution chain.
 - ⚠️ A completed handoff item is only as strong as its recorded evidence; code existence alone does not imply production-grade acceptance.
 
 # 6. ACTIVE MASTER EXECUTION SEQUENCE
@@ -85,63 +86,74 @@ No agent may silently promote C/D to A.
 
 ✅ **COMPLETED.**
 
-Closed measurable contracts include sensor abstraction, monotonic/session time, synchronization and quality semantics, missing-data handling, participant/session/event schemas, feature/state outputs with uncertainty, bounded environment parameters, telemetry/replay, latency/privacy boundaries, and safety interface.
-
 Evidence:
-- exact accepted SHA: `e510258772a1698b712ef8a35dba06750043cdff`
-- workflow: `Phase 1 Contracts`
-- run: `33626870757`
-- conclusion: `success`
-- job: `phase1-contracts` → success
-- synthetic session: schema-valid, deterministic replay, output/telemetry schema-valid
-- fault cases: bad quality → unknown/no-op; human stop override; safety clamp/reject; invalid sequence/time rejected
+- accepted implementation SHA: `e510258772a1698b712ef8a35dba06750043cdff`
+- workflow `Phase 1 Contracts`, run `33626870757` → success
+- schema-valid synthetic session, deterministic replay, output/telemetry schema validation
+- bad quality → unknown/no-op, human stop override, safety clamp/reject, invalid sequence/time rejection
 
 **DONE gate:** proven.
 
 ## PHASE 2 — TASKS 61–80 — BIOSIGNAL ACQUISITION + QUALITY
 
-❌ **CURRENT ACTIVE PHASE.**
+✅ **COMPLETED.**
 
-Build and validate a multimodal input layer without pretending that any single sensor directly reveals emotion.
+Implemented and retained:
+- device-agnostic recorded/replay acquisition contract,
+- explicit units and channel metadata,
+- regular vs event-stream sampling semantics,
+- timestamp normalization and clock offset/drift diagnostics,
+- explicit sampling-gap/dropout detection for regular streams,
+- artifact/missing-data quality flags,
+- per-channel/per-window quality independent of affect confidence,
+- deterministic synchronized measurement windows,
+- clean/noisy/missing/misaligned/drifted fixtures,
+- Empatica E4 EDA + IBI adapter with IBI preserved as an irregular event stream,
+- no affect labels emitted by the acquisition layer.
 
-Primary channels:
-- HR / inter-beat intervals / HRV-derived features,
-- EDA/GSR,
-- respiration,
-- eye/gaze/pupil when hardware permits,
-- face/head/body motion where useful.
+Evidence:
+- implementation/public-data SHA: `8f1af8c1b945530e99eb67a14231a10dc618e741`
+- public recorded-data workflow: `Phase 2 Public Recorded Dataset`
+- run `33632614887`, job `physionet-empatica-recorded-data` → success
+- source dataset: PhysioNet `A Wearable Exam Stress Dataset for Predicting Cognitive Performance in Real-World Settings` v1.0.0, subject S8 Final, deidentified EDA + IBI
+- acquisition-regression SHA: `086066f9cba48cb39ce0745cd56a92cf84b11264`
+- workflow `Phase 2 Acquisition Quality`, run `33632737145`, job `phase2-acquisition-quality` → success
+- Phase 1 regression + Phase 2 quality + Empatica adapter tests all pass
+- compare `8f1af8…` → `086066…`: only `.github/workflows/phase2-acquisition-quality.yml` changed; acquisition/adapter implementation is unchanged.
 
-EEG is not a default requirement. It enters only when a real device and a clearly defined scientific value justify the added complexity/noise burden.
+Scientific boundary retained:
+- physiological measurements are proxies/observations, not private-thought labels,
+- signal quality confidence is distinct from affect-state confidence,
+- bad/missing data remain explicit rather than being silently upgraded.
 
-Required outputs:
-- device-agnostic sensor adapter interface,
-- recorded-file/replay adapter,
-- calibration metadata,
-- clock alignment and timestamp diagnostics,
-- dropout detection,
-- artifact detection/flags,
-- per-channel and per-window quality/confidence,
-- explicit missing/unknown semantics,
-- synchronized clean feature windows,
-- deterministic recorded-data replay,
-- test fixtures for clean, noisy, missing, drifted and misaligned data.
-
-Scientific law for this phase:
-- sensor quality is measured separately from emotional-state confidence,
-- low-quality data must never be silently imputed into high-confidence affect inference,
-- derived physiological features are measurements/proxies, not direct mind-reading labels.
-
-**DONE gate:** a recorded multimodal dataset is ingested through the device-agnostic layer, clocks are aligned/diagnosed, artifacts/dropouts are explicitly marked, synchronized feature windows are produced deterministically, and bad/missing data remain visible instead of being hidden.
-
-Do not start Phase 3 before this gate is proven.
+**DONE gate:** proven with synthetic fault fixtures + actual deidentified recorded data.
 
 ## PHASE 3 — TASKS 81–100 — MULTIMODAL AFFECT / STATE INFERENCE
 
-❌ Start with interpretable baselines before complex ML.
+❌ **CURRENT ACTIVE PHASE.**
 
-Required output: defined state vector such as valence/arousal, confidence/uncertainty, personalization state, and unknown/no-signal state.
+Build an interpretable, uncertainty-aware state-estimation baseline before complex ML.
 
-**DONE gate:** offline validation + calibration metrics + robustness tests without unsupported “mind reading” claims.
+Required work:
+- define the target state representation and what it explicitly does **not** claim,
+- separate observed physiological features, contextual labels and self-report/ground-truth labels,
+- define `known / uncertain / unknown / no-signal` states,
+- define confidence vs uncertainty vs calibration,
+- create a feature-to-state baseline that can be explained and audited,
+- validate on labeled/deidentified recorded data,
+- use participant-independent evaluation where the dataset permits it,
+- report calibration and classification/regression metrics, not accuracy alone,
+- test low-quality/missing-modality behavior,
+- ensure no single biosignal is treated as a direct decoder of a private mental state,
+- preserve provenance from Phase 2 quality through every inference result.
+
+Initial target representation may use bounded valence/arousal or a narrower explicitly labeled state variable, but the chosen representation must match available ground truth. A dataset label such as “stress condition” must not be silently renamed “negative valence” without evidence.
+
+Complex deep learning, opaque end-to-end models and personalization are not first-step requirements. Start with interpretable baselines and only increase complexity if they fail a defined gate.
+
+**DONE gate:** offline validation on labeled/deidentified data with participant-independent or leave-session robustness where feasible, confidence/uncertainty outputs, calibration metrics, explicit unknown behavior under low-quality/missing input, and no unsupported “mind reading” claims.
+
+Do not start Phase 4 before this gate is proven.
 
 ## PHASE 4 — TASKS 101–120 — ADAPTIVE VR PARAMETER ENGINE
 
@@ -219,15 +231,8 @@ Required: regression tests, failure fixtures, calibration-drift tests, false-pos
 
 ## 8. Repository governance
 
-Root must contain:
-- `AGENTS.md`
-- `CANONICAL_MASTER_PLAN.md`
-- `README.md`
-
-Governance docs:
-- `docs/SCIENTIFIC_AND_SAFETY_RULES.md`
-- `docs/CURRENT_CHECKPOINT.md`
-- `docs/archive/` for superseded roadmaps/handoffs when needed.
+Root must contain `AGENTS.md`, `CANONICAL_MASTER_PLAN.md`, `README.md`.
+Governance docs include `docs/SCIENTIFIC_AND_SAFETY_RULES.md`, `docs/CURRENT_CHECKPOINT.md`, and `docs/archive/` when superseded material exists.
 
 Contradiction handling:
 1. Historical value → archive/deprecate and point to canonical plan.
@@ -248,7 +253,7 @@ Every new chat/agent must:
 7. Never open the next phase until the current DONE gate is proven.
 8. Never change ⚠️ to ✅ merely because code exists.
 9. Never revive 🗑️ directions without explicit user instruction + plan update.
-10. End significant sessions by updating the checkpoint: what changed, evidence/tests, status, remaining work and exact next action.
+10. End significant sessions by updating the checkpoint with what changed, evidence/tests, status, remaining work and exact next action.
 11. If the canonical plan changes by explicit user decision, mirror the same substantive change to Drive and GitHub.
 
 ## 10. Completion evidence rule
@@ -259,11 +264,11 @@ Code existence alone is insufficient. A documented scientific hypothesis is not 
 
 ## 11. CURRENT CHECKPOINT
 
-**Active phase:** PHASE 2 — TASKS 61–80 — BIOSIGNAL ACQUISITION + QUALITY.
+**Active phase:** PHASE 3 — TASKS 81–100 — MULTIMODAL AFFECT / STATE INFERENCE.
 
-**Exact objective:** implement the device-agnostic recorded-data acquisition/quality pipeline first, with deterministic replay and explicit quality/missing-data semantics, then connect real sensors only through that same contract.
+**Exact objective:** define the inference target/ground-truth contract and implement the first interpretable, calibrated, uncertainty-aware offline baseline on labeled deidentified data, carrying Phase 2 quality provenance forward.
 
-**Do not do next:** Phase 3 emotion inference, adaptive policy, full-dive research or human-subject work until Phase 2 DONE gate is proven.
+**Do not do next:** Phase 4 adaptation engine, full-dive research, human-subject work or opaque complex ML before the Phase 3 baseline/validation gate is proven.
 
 ## 12. Canonical update rule
 
