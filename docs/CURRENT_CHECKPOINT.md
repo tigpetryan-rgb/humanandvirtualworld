@@ -2,15 +2,17 @@
 
 **READ AFTER `CANONICAL_MASTER_PLAN.md`.**
 
+Updated: 2026-09-02
+
 ## Active phase
 
 **PHASE 3 — TASKS 81–100 — MULTIMODAL AFFECT / STATE INFERENCE**
 
-Status: ❌ not complete.
+Status: ⚠️ active / partially evidenced — **NOT DONE**.
 
 Dedicated repository: ✅ `tigpetryan-rgb/humanandvirtualworld`.
 
-Exact objective: define the inference target/ground-truth contract and implement the first interpretable, calibrated, uncertainty-aware offline baseline on labeled deidentified data while preserving Phase 2 quality provenance.
+Canonical first target: `self_reported_stress_0_10` — participant self-reported perceived stress, treated as a bounded regression target. It is not direct emotion measurement, negative valence, private-thought decoding or diagnosis.
 
 ## Closed phases
 
@@ -40,22 +42,79 @@ Phase 2 scientific invariants retained:
 - bad/missing data remain explicit
 - no affect labels are emitted by Phase 2 acquisition layer
 
-## Current Phase 3 requirements
+## Phase 3 evidence established so far
 
-1. Define target state semantics and explicit non-claims.
-2. Separate measurement features, contextual/condition labels and self-report/ground-truth labels.
-3. Select labeled/deidentified data appropriate to the exact target; do not rename labels into unsupported constructs.
-4. Define `known / uncertain / unknown / no-signal` inference states.
-5. Define confidence, uncertainty and calibration behavior.
-6. Build an interpretable baseline before complex ML.
-7. Carry Phase 2 quality/provenance into inference and abstain/unknown under insufficient evidence.
-8. Validate offline with participant-independent or leave-session evaluation where feasible.
-9. Report balanced metrics and calibration, not accuracy alone.
-10. Test missing modalities, low-quality input and distribution-shift/failure fixtures.
+### A. Target / ground-truth and interpretable baseline
+
+Implemented:
+- exact target contract in `docs/PHASE3_INFERENCE_CONTRACT.md`
+- deterministic standardized ridge regression in `src/positive_emotion_engine/state_inference.py`
+- model features: `mean_eda_us`, `heart_rate_bpm`
+- explicit inference states: `known / uncertain / unknown / no_signal`
+- explicit abstention for absent or insufficient-quality evidence
+- uncertainty kept separate from signal quality and model confidence
+- approximate prediction interval + calibration report
+- leave-one-participant-out evaluation function
+- synthetic regression, missing-modality, low-quality and abstention tests
+
+CI evidence:
+- `Phase 3 Inference Baseline` run `33634956562` → success
+- accepted baseline SHA `04f98834ef5ef13f5ac8f1cfa0312d26fc1e1a0e`
+
+### B. Selected public/deidentified recorded dataset contract
+
+Selected dataset:
+- PhysioNet `Wearable Device Dataset from Induced Stress and Structured Exercise Sessions`
+- version `1.0.1`
+- DOI `10.13026/he0v-tf17`
+- stress-session target source: published stage self-reports
+- V1 and V2 protocol semantics remain separate
+- the distributed label files contain values in the observed `0..10` range; values are preserved rather than silently rewritten
+
+Implemented:
+- `src/positive_emotion_engine/physionet_stress_dataset.py`
+- `tests/test_physionet_stress_dataset.py`
+- pinned-public-data validator and CI workflow
+- published SHA-256 verification for `Stress_Level_v1.csv`, `Stress_Level_v2.csv` and the selected `f10` EDA/HR/tags format probe
+- explicit exclusion/caveat policy for `S02`, `f07`, `f14`
+- independent EDA/HR stream start timestamps are preserved; streams are aligned by timestamps rather than falsely requiring equal starts
+
+CI evidence:
+- `Phase 3 Public Recorded Dataset` run `33635986542` → success
+- recorded-data evidence SHA `85a4775c294780158d9693fad1118e36c96e3002`
+
+### C. Leakage-safe stage-window contract
+
+Implemented:
+- `src/positive_emotion_engine/recorded_stage_windows.py`
+- `tests/test_recorded_stage_windows.py`
+- stage extraction requires an explicit verified `StageTagMapping`
+- stage identity is not inferred from self-report values, signal shape, task difficulty or elapsed duration
+- participant/stage label join is exact
+- EDA and HR windows are aligned from their independent UTC timestamps
+- missing modality remains explicit and model-input coverage is recorded separately
+- provenance carries participant, protocol version, stage, tag indices, window times, stream coverage and leakage controls
+
+Evidence:
+- implementation SHA `c536965ed763e6b89069f399b15258eea9fce556`
+- regression-test SHA `9f4e498a6cbcaa465910d8c1564b87b869b95363`
+- workflow SHA `8eba4ee9b7172b3cd3ccbf5a9a295ebe7938a8f9`
+- `Phase 3 Stage Window Contract` run `33636491215` → success
+
+## Current Phase 3 blocker / exact next action
+
+The remaining blocker is **not model architecture**. It is dataset-semantic alignment:
+
+1. Recover and verify the exact V1/V2 `tag index → protocol stage boundary` mapping from the official PhysioNet protocol notebook or an equivalent primary source.
+2. Do **not** infer that mapping from event durations, signal shapes or self-report values.
+3. After the mapping is verified, process the eligible full stress cohort, applying explicit exclusions/caveats.
+4. Build real per-participant stage windows and join them to the exact published stage self-reports.
+5. Run participant-independent / leave-one-participant-out validation on the actual deidentified recordings.
+6. Report MAE, RMSE, R², abstention/state counts, nominal vs empirical interval coverage, V1/V2 cohort behavior, distribution-shift/failure cases and exact final code/data evidence.
 
 ## Phase 3 DONE gate
 
-Offline validation on labeled/deidentified data with participant-independent or leave-session robustness where feasible, confidence/uncertainty outputs, calibration metrics, explicit unknown behavior under low-quality/missing input, and no unsupported “mind reading” claims.
+Phase 3 may become ✅ only after the actual recorded-data inference evaluation above is reproducible and passes the scientific boundary checks. Passing synthetic tests, file-format validation or stage-window contract tests alone is insufficient.
 
 ## Do not start yet
 
@@ -63,8 +122,6 @@ Offline validation on labeled/deidentified data with participant-independent or 
 - Closed-loop emotion optimization.
 - Human-subject testing.
 - Full-dive-adjacent research.
-- Opaque deep/end-to-end models before the interpretable baseline is evaluated.
+- Opaque deep/end-to-end models before the interpretable recorded-data baseline is evaluated.
 
-## Exact next action
-
-Create the Phase 3 target/ground-truth contract and identify a legally usable labeled deidentified dataset whose labels match the target. Then implement and validate an interpretable baseline with explicit abstention/uncertainty and participant-independent evaluation.
+**Phase 4 remains closed until the Phase 3 recorded-data DONE gate is proven.**
