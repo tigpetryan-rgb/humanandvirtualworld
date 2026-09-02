@@ -18,4 +18,4 @@ jobs:
       - name: Run Phase 1 regression tests
         run: python -m pytest -q tests/test_phase1_reference_pipeline.py
       - name: Run Phase 2 acquisition quality tests
-        run: python -m pytest -q tests/test_phase2_acquisition_quality.py
+        run: python -m pytest -q tests/test_phase2_acquisition_quality.py tests/test_empatica_e4_adapter.py
