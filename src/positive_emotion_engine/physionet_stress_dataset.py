@@ -211,6 +211,12 @@ def parse_regular_empatica_stream(
     )
 
 
+def stream_start_offset_seconds(reference: RegularEmpaticaStream, other: RegularEmpaticaStream) -> float:
+    reference_start = datetime.strptime(reference.session_start_utc, "%Y-%m-%d %H:%M:%S")
+    other_start = datetime.strptime(other.session_start_utc, "%Y-%m-%d %H:%M:%S")
+    return (other_start - reference_start).total_seconds()
+
+
 def validate_public_recorded_bundle(dataset_root: str | Path) -> dict[str, Any]:
     root = Path(dataset_root)
     v1 = parse_stress_level_csv((root / "Stress_Level_v1.csv").read_text(), "v1")
@@ -231,8 +237,6 @@ def validate_public_recorded_bundle(dataset_root: str | Path) -> dict[str, Any]:
     hr = parse_regular_empatica_stream(
         (subject / "HR.csv").read_text(), unit="bpm", expected_sample_rate_hz=1.0
     )
-    if eda.session_start_utc != hr.session_start_utc:
-        raise DatasetContractError("EDA and HR session starts differ for f10")
 
     f10_labels = [label for label in v2 if label.participant_id == "f10"]
     if len(f10_labels) != len(PROTOCOL_STAGES["v2"]):
@@ -262,16 +266,22 @@ def validate_public_recorded_bundle(dataset_root: str | Path) -> dict[str, Any]:
             "protocol_version": "v2",
             "event_tag_count": len(tags),
             "eda": {
+                "start_utc": eda.session_start_utc,
                 "sample_rate_hz": eda.sample_rate_hz,
                 "samples": len(eda.values),
                 "duration_seconds": eda.duration_seconds,
             },
             "hr": {
+                "start_utc": hr.session_start_utc,
+                "start_offset_from_eda_seconds": stream_start_offset_seconds(eda, hr),
                 "sample_rate_hz": hr.sample_rate_hz,
                 "samples": len(hr.values),
                 "duration_seconds": hr.duration_seconds,
             },
-            "session_start_utc": eda.session_start_utc,
+            "alignment_policy": (
+                "preserve each published stream start timestamp; align by timestamps during window extraction "
+                "rather than requiring equal stream starts"
+            ),
         },
         "exclusion_policy": [asdict(policy) for policy in excluded],
         "stage_alignment": {
