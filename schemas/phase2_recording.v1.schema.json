@@ -16,7 +16,8 @@
         "properties": {
           "name": {"enum": ["heart_ibi_ms", "eda_us", "respiration_norm"]},
           "unit": {"type": "string"},
-          "nominal_hz": {"type": "number", "exclusiveMinimum": 0},
+          "sampling_mode": {"enum": ["regular", "event"]},
+          "nominal_hz": {"type": ["number", "null"], "exclusiveMinimum": 0},
           "clock": {
             "type": "object",
             "required": ["offset_ms", "drift_ppm"],
@@ -41,7 +42,17 @@
             }
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {"properties": {"sampling_mode": {"const": "regular"}}, "required": ["sampling_mode"]},
+            "then": {"properties": {"nominal_hz": {"type": "number", "exclusiveMinimum": 0}}}
+          },
+          {
+            "if": {"not": {"required": ["sampling_mode"]}},
+            "then": {"properties": {"nominal_hz": {"type": "number", "exclusiveMinimum": 0}}}
+          }
+        ]
       }
     }
   },
