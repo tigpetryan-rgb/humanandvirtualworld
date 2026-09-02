@@ -4,64 +4,67 @@
 
 ## Active phase
 
-**PHASE 2 — TASKS 61–80 — BIOSIGNAL ACQUISITION + QUALITY**
+**PHASE 3 — TASKS 81–100 — MULTIMODAL AFFECT / STATE INFERENCE**
 
 Status: ❌ not complete.
 
-Dedicated repository binding: ✅ `tigpetryan-rgb/humanandvirtualworld`.
+Dedicated repository: ✅ `tigpetryan-rgb/humanandvirtualworld`.
 
-Exact objective: build the device-agnostic recorded-data acquisition/quality pipeline first, with deterministic replay, clock diagnostics, explicit artifact/dropout/missing-data semantics, synchronized feature windows and automated quality fixtures.
+Exact objective: define the inference target/ground-truth contract and implement the first interpretable, calibrated, uncertainty-aware offline baseline on labeled deidentified data while preserving Phase 2 quality provenance.
 
-## Closed previous phase
+## Closed phases
 
 ✅ **PHASE 1 — TASKS 41–60 — SYSTEM SPEC + MEASUREMENT FOUNDATION**
 
+Evidence:
+- accepted SHA `e510258772a1698b712ef8a35dba06750043cdff`
+- `Phase 1 Contracts` run `33626870757` → success
+
+✅ **PHASE 2 — TASKS 61–80 — BIOSIGNAL ACQUISITION + QUALITY**
+
 Accepted evidence:
-- exact accepted SHA: `e510258772a1698b712ef8a35dba06750043cdff`
-- GitHub Actions workflow: `Phase 1 Contracts`
-- run id: `33626870757`
-- run conclusion: `success`
-- job `phase1-contracts`: `success`
-- schema-validated synthetic input
-- deterministic synthetic replay
-- output/telemetry schema validation
-- tests for low-quality→unknown/no-op, human stop, parameter clamp/reject, invalid sequence/time, synthetic-only Phase 1 boundary
+- implementation/public-data SHA `8f1af8c1b945530e99eb67a14231a10dc618e741`
+- `Phase 2 Public Recorded Dataset` run `33632614887`
+- job `physionet-empatica-recorded-data` → success
+- actual deidentified data: PhysioNet Wearable Exam Stress v1.0.0, S8 Final, EDA + IBI
+- Empatica EDA retained as regular 4 Hz measurement stream; IBI retained as irregular event stream rather than falsely assigning a fixed sample rate
+- current acquisition-regression SHA `086066f9cba48cb39ce0745cd56a92cf84b11264`
+- `Phase 2 Acquisition Quality` run `33632737145`
+- job `phase2-acquisition-quality` → success
+- Phase 1 regression + Phase 2 quality + Empatica adapter unit tests pass
+- compare `8f1af8…` → `086066…`: only Phase 2 workflow test-list changed; acquisition/adapter implementation unchanged
 
-Phase 1 DONE gate is proven and must not be reopened without concrete defect evidence.
+Phase 2 scientific invariants retained:
+- signal quality confidence ≠ affect-state confidence
+- physiological measurements/proxies ≠ private-thought labels
+- bad/missing data remain explicit
+- no affect labels are emitted by Phase 2 acquisition layer
 
-## Current Phase 2 requirements
+## Current Phase 3 requirements
 
-1. Define device-agnostic sensor adapter and recorded/replay adapter.
-2. Define channel metadata, units, nominal sampling expectations and calibration metadata.
-3. Implement timestamp normalization and clock-alignment diagnostics.
-4. Detect explicit dropouts/gaps and preserve missing-data intervals.
-5. Detect/flag artifacts using channel-specific quality rules without pretending to solve physiology universally.
-6. Produce per-sample/per-window quality and confidence independent of affect inference.
-7. Produce synchronized feature windows from usable data while retaining quality provenance.
-8. Add deterministic fixtures: clean, noisy, missing, drifted and misaligned multimodal data.
-9. Validate recorded-data replay and synchronized features through automated tests.
+1. Define target state semantics and explicit non-claims.
+2. Separate measurement features, contextual/condition labels and self-report/ground-truth labels.
+3. Select labeled/deidentified data appropriate to the exact target; do not rename labels into unsupported constructs.
+4. Define `known / uncertain / unknown / no-signal` inference states.
+5. Define confidence, uncertainty and calibration behavior.
+6. Build an interpretable baseline before complex ML.
+7. Carry Phase 2 quality/provenance into inference and abstain/unknown under insufficient evidence.
+8. Validate offline with participant-independent or leave-session evaluation where feasible.
+9. Report balanced metrics and calibration, not accuracy alone.
+10. Test missing modalities, low-quality input and distribution-shift/failure fixtures.
 
-## Phase 2 scientific constraints
+## Phase 3 DONE gate
 
-- Physiological features are measurements/proxies, not direct emotion labels.
-- Signal-quality confidence is not emotional-state confidence.
-- Missing or poor-quality input must remain explicit.
-- No silent interpolation/imputation may upgrade bad data into high-confidence inference.
-- EEG is optional and not a default gate; add only with a real device and a clear scientific reason.
-
-## Phase 2 DONE gate
-
-A recorded multimodal dataset is ingested through the device-agnostic layer, clocks are aligned/diagnosed, artifacts/dropouts are explicitly marked, synchronized clean feature windows are produced deterministically, and bad/missing data remain visible instead of hidden.
+Offline validation on labeled/deidentified data with participant-independent or leave-session robustness where feasible, confidence/uncertainty outputs, calibration metrics, explicit unknown behavior under low-quality/missing input, and no unsupported “mind reading” claims.
 
 ## Do not start yet
 
-- Tasks 81+ affect/state inference.
-- Advanced personalization/ML.
+- Tasks 101+ adaptive VR parameter engine.
+- Closed-loop emotion optimization.
 - Human-subject testing.
-- Adaptive emotion optimization.
 - Full-dive-adjacent research.
-- Large 3D content work unrelated to the active gate.
+- Opaque deep/end-to-end models before the interpretable baseline is evaluated.
 
 ## Exact next action
 
-Implement the Phase 2 recorded/replay acquisition model, quality diagnostics and deterministic multimodal fixtures/tests on top of the Phase 1 contracts. Do not connect real participant data until the quality/replay layer is reproducibly validated.
+Create the Phase 3 target/ground-truth contract and identify a legally usable labeled deidentified dataset whose labels match the target. Then implement and validate an interpretable baseline with explicit abstention/uncertainty and participant-independent evaluation.
