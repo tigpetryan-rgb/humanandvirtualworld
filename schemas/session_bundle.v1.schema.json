@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/positive-emotion-engine/session_bundle.v1.schema.json",
+  "title": "Positive Emotion Engine Phase 1 Synthetic Session Bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "session", "samples", "initial_scene", "policy"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "session": {"$ref": "#/$defs/session"},
+    "samples": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sensor_sample"}},
+    "initial_scene": {"$ref": "#/$defs/scene_state"},
+    "policy": {"$ref": "#/$defs/policy"}
+  },
+  "$defs": {
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_id", "participant_id", "data_class", "synthetic", "stop_requested"],
+      "properties": {
+        "session_id": {"type": "string", "minLength": 1},
+        "participant_id": {"type": "string", "pattern": "^synthetic-"},
+        "data_class": {"const": "synthetic_only"},
+        "synthetic": {"const": true},
+        "stop_requested": {"type": "boolean"}
+      }
+    },
+    "sensor_sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "session_id", "seq", "monotonic_ns", "source_time_ns", "source_clock_id", "sync_uncertainty_ms", "sensor_type", "value", "quality", "confidence"],
+      "properties": {
+        "event_id": {"type": "string", "minLength": 1},
+        "session_id": {"type": "string", "minLength": 1},
+        "seq": {"type": "integer", "minimum": 0},
+        "monotonic_ns": {"type": "integer", "minimum": 0},
+        "source_time_ns": {"type": ["integer", "null"], "minimum": 0},
+        "source_clock_id": {"type": "string", "minLength": 1},
+        "sync_uncertainty_ms": {"type": "number", "minimum": 0},
+        "sensor_type": {"enum": ["heart", "eda", "respiration", "gaze", "pupil", "face_motion", "head_motion", "body_motion", "eeg_optional"]},
+        "value": {"type": "number", "minimum": 0, "maximum": 1},
+        "quality": {"enum": ["good", "degraded", "artifact", "dropout", "missing", "unknown"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "scene_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["light_intensity", "motion_intensity", "audio_intensity", "scene_density"],
+      "properties": {
+        "light_intensity": {"type": "number"},
+        "motion_intensity": {"type": "number"},
+        "audio_intensity": {"type": "number"},
+        "scene_density": {"type": "number"}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "seed"],
+      "properties": {
+        "policy_id": {"const": "synthetic-reference-v1"},
+        "seed": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
