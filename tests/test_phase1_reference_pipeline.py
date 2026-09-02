@@ -17,12 +17,18 @@ from positive_emotion_engine.reference_pipeline import (
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = json.loads((ROOT / "schemas/session_bundle.v1.schema.json").read_text())
+RESULT_SCHEMA = json.loads((ROOT / "schemas/pipeline_result.v1.schema.json").read_text())
 FIXTURE = json.loads((ROOT / "fixtures/synthetic_session.v1.json").read_text())
 
 
 def test_fixture_is_valid_json_schema_and_contract():
     jsonschema.validate(FIXTURE, SCHEMA)
     validate_bundle(FIXTURE)
+
+
+def test_output_is_valid_json_schema():
+    result = run_session(FIXTURE)
+    jsonschema.validate(result, RESULT_SCHEMA)
 
 
 def test_deterministic_replay_is_identical():
