@@ -1,0 +1,34 @@
+name: Phase 3 Inference Baseline
+
+on:
+  push:
+    paths:
+      - "src/positive_emotion_engine/state_inference.py"
+      - "tests/test_phase3_state_inference.py"
+      - "docs/PHASE3_INFERENCE_CONTRACT.md"
+      - ".github/workflows/phase3-inference-baseline.yml"
+  pull_request:
+    paths:
+      - "src/positive_emotion_engine/state_inference.py"
+      - "tests/test_phase3_state_inference.py"
+      - "docs/PHASE3_INFERENCE_CONTRACT.md"
+      - ".github/workflows/phase3-inference-baseline.yml"
+  workflow_dispatch:
+
+jobs:
+  phase3-inference-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package and test dependencies
+        run: python -m pip install -e ".[test]"
+      - name: Phase 1-3 regression suite
+        run: >-
+          pytest -q
+          tests/test_phase1_reference_pipeline.py
+          tests/test_phase2_acquisition_quality.py
+          tests/test_empatica_e4_adapter.py
+          tests/test_phase3_state_inference.py
